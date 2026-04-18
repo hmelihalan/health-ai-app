@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
-    "setup": "npx prisma db push && npm run seed"
+    "setup": "([ -f .env ] || echo 'DATABASE_URL=\"file:./dev.db\"' > .env) && npx prisma db push && npm run seed"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

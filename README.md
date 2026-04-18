@@ -2,19 +2,31 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### 1. Initial Setup (Mandatory for Login)
+If you just cloned this repository, you must initialize the database and create the mock demo users before logging in:
+
+```bash
+# Install dependencies
+npm install
+
+# Create local database and seed demo users
+npm run setup
+```
+
+### 2. Run the Development Server
+After setup, run the project locally:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
+
+### 3. Demo Credentials
+Use these accounts to log in (Password for all: `password123`):
+- **Admin**: `admin@healthai.edu`
+- **Healthcare Pro**: `dr.smith@med.edu`
+- **Engineer**: `dev.jones@tech.edu`
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

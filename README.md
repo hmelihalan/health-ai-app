@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HEALTH AI - Co-Creation & Innovation Platform
 
-## Getting Started
+A secure, full-stack Next.js web application designed to connect healthcare professionals with engineers for innovative collaborations. Built for SENG 384 Software Project III.
 
-First, run the development server:
+## 🚀 Features
+- **Role-Based Access Control:** Secure registration and routing for Admins, Healthcare Professionals, and Engineers.
+- **Project Marketplace:** Create, edit, and filter collaboration posts based on domain and location.
+- **Secure Meeting Workflows:** Request meetings, accept NDAs, and propose time slots securely.
+- **GDPR & Admin Tools:** GDPR-compliant profile deletion, activity logging, and CSV log exports.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🛠 Tech Stack
+- **Frontend:** Next.js 15 (App Router), React, Vanilla CSS (Glassmorphism design)
+- **Backend:** Next.js Server Actions, Next.js Route Handlers
+- **Database:** PostgreSQL 15, Prisma ORM v7
+- **Security:** JWT session management (`jose`), password hashing (`bcryptjs`)
+- **Infrastructure:** Docker & Docker Compose
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📦 Local Setup & Execution
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+- (Optional) Node.js 20+ if you wish to run outside of Docker.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Running with Docker (Recommended)
+This project is fully containerized, meaning the application and PostgreSQL database will automatically spin up together.
 
-## Learn More
+1. Ensure Docker daemon is running on your machine.
+2. Open your terminal in the project root directory (`health-ai-app`).
+3. Run the following command:
+   ```bash
+   docker-compose up --build
+   ```
+4. Once the build is finished and the database is healthy, the app will automatically seed default data.
+5. Open your browser and navigate to: **[http://localhost:3000](http://localhost:3000)**
 
-To learn more about Next.js, take a look at the following resources:
+### Default Seed Users (for testing)
+- **Admin**: `admin@healthai.edu` | Password: `password123`
+- **Doctor**: `dr.smith@med.edu` | Password: `password123`
+- **Engineer**: `dev.jones@tech.edu` | Password: `password123`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*This application was developed as the final submission for the HEALTH AI project.*

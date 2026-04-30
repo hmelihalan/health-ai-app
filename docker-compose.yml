@@ -1,0 +1,32 @@
+services:
+  health-ai-app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://healthai:healthai_pass@postgres:5432/healthaidb
+      - JWT_SECRET=health_ai_super_secret_jwt_key_2026
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=healthai
+      - POSTGRES_PASSWORD=healthai_pass
+      - POSTGRES_DB=healthaidb
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U healthai -d healthaidb" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pg-data:

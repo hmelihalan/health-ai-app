@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, MapPin, Calendar, Clock, FileText, CheckCircle } from "lucide-react";
 import MeetingRequestForm from "@/components/MeetingRequestForm";
 import MeetingResponseButtons from "@/components/MeetingResponseButtons";
+import { updatePostStatus } from "@/actions/postActions";
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -36,7 +37,19 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <div className="card" style={{ padding: '2.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
           <div>
-            <span className={`badge badge-${post.status.toLowerCase().split(' ')[0]}`} style={{ marginBottom: '0.75rem' }}>{post.status}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+              <span className={`badge badge-${post.status.toLowerCase().split(' ')[0]}`}>{post.status}</span>
+              {isOwner && post.status !== 'Partner Found' && (
+                <form action={async () => {
+                  "use server";
+                  await updatePostStatus(post.id, "Partner Found");
+                }}>
+                  <button type="submit" className="btn btn-success" style={{ padding: '0.25rem 0.75rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <CheckCircle size={14} /> Mark Partner Found
+                  </button>
+                </form>
+              )}
+            </div>
             <h1 style={{ fontSize: '2.25rem', fontWeight: 700, lineHeight: 1.2 }}>{post.title}</h1>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -88,8 +101,15 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         {/* Meeting Request Section (For Others) */}
-        {!isOwner && session && !hasRequested && post.status === 'Active' && (
+        {!isOwner && session && !hasRequested && post.status !== 'Partner Found' && (
           <MeetingRequestForm postId={post.id} />
+        )}
+        
+        {!isOwner && session && !hasRequested && post.status === 'Partner Found' && (
+          <div className="card" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'var(--success-color)', textAlign: 'center' }}>
+            <h4 style={{ color: 'var(--success-color)', fontWeight: 600, marginBottom: '0.5rem' }}>Partner Found</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>This project has already found a partner and is no longer accepting new requests.</p>
+          </div>
         )}
 
         {!isOwner && session && hasRequested && (

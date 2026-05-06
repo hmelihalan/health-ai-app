@@ -17,6 +17,12 @@ export async function requestMeeting(formData: FormData) {
     return { error: "You must accept the NDA to request a meeting." };
   }
 
+  const post = await db.post.findUnique({ where: { id: postId }, select: { ownerId: true, title: true, status: true } });
+  if (!post) return { error: "Post not found." };
+  if (post.status === "Partner Found") {
+    return { error: "This project has already found a partner and is no longer accepting requests." };
+  }
+
   const existing = await db.meetingRequest.findFirst({
     where: { postId, requesterId: session.userId }
   });
@@ -40,7 +46,6 @@ export async function requestMeeting(formData: FormData) {
     data: { userId: session.userId, actionType: "REQUEST_MEETING", targetEntity: mr.id, resultStatus: "SUCCESS" }
   });
 
-  const post = await db.post.findUnique({ where: { id: postId }, select: { ownerId: true, title: true } });
   if (post) {
     await db.notification.create({
       data: {

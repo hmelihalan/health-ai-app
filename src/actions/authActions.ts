@@ -179,7 +179,7 @@ export async function deleteAccount(formData: FormData) {
   redirect("/login");
 }
 
-export async function forgotPassword(formData: FormData) {
+export async function forgotPassword(formData: FormData): Promise<{ success: boolean; error?: string }> {
   const email = formData.get("email") as string;
   const user = await db.user.findUnique({ where: { email } });
 

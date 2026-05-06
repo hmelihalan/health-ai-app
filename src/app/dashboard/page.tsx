@@ -99,17 +99,19 @@ export default async function DashboardPage() {
                 {req.status === 'Accepted' && (
                   <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg-color)', borderRadius: '8px' }}>
                     <p style={{ fontSize: '0.85rem', color: 'var(--success-color)', marginBottom: '0.5rem', fontWeight: 600 }}>
-                      Your interest was accepted! Schedule a meeting time below:
+                      Your interest was accepted!
                     </p>
-                    <form action={async (formData) => {
-                      "use server";
-                      const { scheduleMeeting } = await import("@/actions/meetingActions");
-                      await scheduleMeeting(formData);
-                    }} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <input type="hidden" name="requestId" value={req.id} />
-                      <input type="datetime-local" name="timeSlots" required className="input-field" style={{ margin: 0 }} />
-                      <button type="submit" className="btn btn-primary" style={{ padding: '0.4rem' }}>Confirm Time</button>
-                    </form>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Click "View Post" below to propose a meeting time.
+                    </p>
+                  </div>
+                )}
+                
+                {req.status === 'Time Proposed' && req.timeSlots && (
+                  <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid #3b82f6', borderRadius: '8px' }}>
+                    <p style={{ fontSize: '0.85rem', color: '#3b82f6', fontWeight: 600 }}>Time Proposed</p>
+                    <p style={{ fontSize: '0.9rem' }}>{new Date(req.timeSlots).toLocaleString()}</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Waiting for owner to accept.</p>
                   </div>
                 )}
                 

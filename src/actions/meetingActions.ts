@@ -116,7 +116,49 @@ export async function scheduleMeeting(formData: FormData) {
 
   await db.meetingRequest.update({
     where: { id: requestId },
-    data: { timeSlots, status: "Scheduled" }
+    data: { timeSlots, status: "Time Proposed" }
+  });
+
+  await db.activityLog.create({
+    data: {
+      userId: session.userId,
+      actionType: "PROPOSE_MEETING_TIME",
+      targetEntity: requestId,
+      resultStatus: "SUCCESS"
+    }
+  });
+
+  await db.notification.create({
+    data: {
+      userId: mr.post.ownerId,
+      type: "MEETING_TIME_PROPOSED",
+      message: `The requester has proposed a meeting time for "${mr.post.title}".`
+    }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/posts/${mr.postId}`);
+  return { success: true };
+}
+
+export async function acceptSchedule(formData: FormData) {
+  const session = await getSession();
+  if (!session) return { error: "Unauthorized" };
+
+  const requestId = formData.get("requestId") as string;
+
+  const mr = await db.meetingRequest.findUnique({
+    where: { id: requestId },
+    include: { post: true }
+  });
+
+  if (!mr || mr.post.ownerId !== session.userId || mr.status !== "Time Proposed") {
+    return { error: "Not authorized or time not proposed yet." };
+  }
+
+  await db.meetingRequest.update({
+    where: { id: requestId },
+    data: { status: "Scheduled" }
   });
 
   if (mr.post.status === "Active") {
@@ -129,7 +171,7 @@ export async function scheduleMeeting(formData: FormData) {
   await db.activityLog.create({
     data: {
       userId: session.userId,
-      actionType: "SCHEDULE_MEETING",
+      actionType: "ACCEPT_MEETING_SCHEDULE",
       targetEntity: requestId,
       resultStatus: "SUCCESS"
     }
@@ -137,9 +179,9 @@ export async function scheduleMeeting(formData: FormData) {
 
   await db.notification.create({
     data: {
-      userId: mr.post.ownerId,
+      userId: mr.requesterId,
       type: "MEETING_SCHEDULED",
-      message: `The requester has scheduled a meeting time for "${mr.post.title}".`
+      message: `The owner has accepted the meeting time for "${mr.post.title}".`
     }
   });
 

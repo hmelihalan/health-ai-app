@@ -27,7 +27,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   if (!post) notFound();
 
   const isOwner = session?.userId === post.ownerId;
-  const hasRequested = session && !isOwner ? post.meetingRequests.some(r => r.requesterId === session.userId) : false;
+  const userRequest = session && !isOwner ? post.meetingRequests.find(r => r.requesterId === session.userId) : null;
+  const hasRequested = !!userRequest;
 
   return (
     <div className="fade-in" style={{ padding: '1rem 0', maxWidth: '900px', margin: '0 auto' }}>
@@ -109,10 +110,40 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {!isOwner && session && hasRequested && (
+        {!isOwner && session && hasRequested && userRequest?.status === 'Pending' && (
           <div className="card" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: 'var(--accent-color)', textAlign: 'center' }}>
             <h4 style={{ color: 'var(--accent-color)', fontWeight: 600, marginBottom: '0.5rem' }}>You have requested a meeting!</h4>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Pending response from the project owner.</p>
+          </div>
+        )}
+
+        {!isOwner && session && hasRequested && userRequest?.status === 'Accepted' && (
+          <div className="card" style={{ backgroundColor: 'var(--bg-color)', borderColor: 'var(--success-color)' }}>
+            <h4 style={{ color: 'var(--success-color)', fontWeight: 600, marginBottom: '0.5rem' }}>Your interest was accepted!</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Please propose a time for the meeting.</p>
+            <form action={async (formData) => {
+              "use server";
+              const { scheduleMeeting } = await import("@/actions/meetingActions");
+              await scheduleMeeting(formData);
+            }} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <input type="hidden" name="requestId" value={userRequest.id} />
+              <input type="datetime-local" name="timeSlots" required className="input-field" style={{ margin: 0, flex: 1, minWidth: '200px' }} />
+              <button type="submit" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Propose Time</button>
+            </form>
+          </div>
+        )}
+
+        {!isOwner && session && hasRequested && userRequest?.status === 'Time Proposed' && (
+          <div className="card" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: '#3b82f6', textAlign: 'center' }}>
+            <h4 style={{ color: '#3b82f6', fontWeight: 600, marginBottom: '0.5rem' }}>Time Proposed</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Waiting for the owner to accept your proposed time.</p>
+          </div>
+        )}
+
+        {!isOwner && session && hasRequested && userRequest?.status === 'Scheduled' && (
+          <div className="card" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: 'var(--success-color)', textAlign: 'center' }}>
+            <h4 style={{ color: 'var(--success-color)', fontWeight: 600, marginBottom: '0.5rem' }}>Meeting Scheduled!</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Your meeting is set for {new Date(userRequest.timeSlots!).toLocaleString()}.</p>
           </div>
         )}
 
@@ -145,10 +176,12 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
                       <span className={`badge`} style={{ 
                         background: req.status === 'Pending' ? 'rgba(234, 179, 8, 0.1)' : 
                                    req.status === 'Scheduled' ? 'rgba(16, 185, 129, 0.1)' : 
-                                   req.status === 'Accepted' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                   req.status === 'Accepted' ? 'rgba(59, 130, 246, 0.1)' : 
+                                   req.status === 'Time Proposed' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                         color: req.status === 'Pending' ? '#eab308' : 
                                req.status === 'Scheduled' ? '#10b981' : 
-                               req.status === 'Accepted' ? '#3b82f6' : '#ef4444'
+                               req.status === 'Accepted' ? '#3b82f6' : 
+                               req.status === 'Time Proposed' ? '#3b82f6' : '#ef4444'
                       }}>
                         {req.status}
                       </span>
@@ -178,6 +211,20 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
 
                     {req.status === 'Pending' && (
                        <MeetingResponseButtons requestId={req.id} />
+                    )}
+
+                    {req.status === 'Time Proposed' && (
+                      <form action={async () => {
+                        "use server";
+                        const { acceptSchedule } = await import("@/actions/meetingActions");
+                        const formData = new FormData();
+                        formData.append("requestId", req.id);
+                        await acceptSchedule(formData);
+                      }} style={{ marginTop: '1rem' }}>
+                        <button type="submit" className="btn btn-success" style={{ width: '100%', padding: '0.6rem' }}>
+                          Accept Proposed Time
+                        </button>
+                      </form>
                     )}
                   </div>
                 ))}

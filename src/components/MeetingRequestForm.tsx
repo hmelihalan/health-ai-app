@@ -35,7 +35,7 @@ export default function MeetingRequestForm({ postId }: { postId: string }) {
   return (
     <form action={formAction} className="card fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <h3 style={{ fontSize: '1.25rem', fontWeight: 600, borderBottom: '1px solid var(--surface-border)', paddingBottom: '0.5rem' }}>
-        Express Interest & Request Meeting
+        Express Interest
       </h3>
       
       {state?.error && (
@@ -46,11 +46,7 @@ export default function MeetingRequestForm({ postId }: { postId: string }) {
 
       <input type="hidden" name="postId" value={postId} />
 
-      <div className="form-group" style={{ marginBottom: 0 }}>
-        <label className="form-label">Propose a Time Slot</label>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Select a specific date and time for the meeting</p>
-        <input type="datetime-local" name="timeSlots" required className="input-field" />
-      </div>
+
 
       <div className="form-group" style={{ marginBottom: 0 }}>
         <label className="form-label">Short Message (Optional)</label>

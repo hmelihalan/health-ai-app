@@ -47,7 +47,7 @@ model MeetingRequest {
   requester   User     @relation(fields: [requesterId], references: [id])
   postId      String
   post        Post     @relation(fields: [postId], references: [id])
-  timeSlots   String
+  timeSlots   String?
   message     String?
   ndaAccepted Boolean  @default(false)
   status      String   @default("Pending")

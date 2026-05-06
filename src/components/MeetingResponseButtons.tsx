@@ -7,7 +7,7 @@ import { Check, X } from "lucide-react";
 export default function MeetingResponseButtons({ requestId }: { requestId: string }) {
   const [isPending, startTransition] = useTransition();
 
-  const handleResponse = (status: "Scheduled" | "Declined") => {
+  const handleResponse = (status: "Accepted" | "Declined") => {
     startTransition(() => {
       respondToMeeting(requestId, status);
     });
@@ -16,12 +16,12 @@ export default function MeetingResponseButtons({ requestId }: { requestId: strin
   return (
     <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
       <button 
-        onClick={() => handleResponse("Scheduled")} 
+        onClick={() => handleResponse("Accepted")} 
         disabled={isPending}
         className="btn" 
         style={{ flex: 1, backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success-color)', border: '1px solid var(--success-color)' }}
       >
-        <Check size={16} /> Accept & Schedule
+        <Check size={16} /> Accept Interest
       </button>
       <button 
         onClick={() => handleResponse("Declined")} 

@@ -9,7 +9,6 @@ export async function requestMeeting(formData: FormData) {
   if (!session) return { error: "Unauthorized" };
 
   const postId = formData.get("postId") as string;
-  const timeSlots = formData.get("timeSlots") as string;
   const message = formData.get("message") as string;
   const ndaAccepted = formData.get("ndaAccepted") === "on";
 
@@ -35,7 +34,6 @@ export async function requestMeeting(formData: FormData) {
     data: {
       postId,
       requesterId: session.userId,
-      timeSlots,
       message,
       ndaAccepted: true,
       status: "Pending"
@@ -60,7 +58,7 @@ export async function requestMeeting(formData: FormData) {
   return { success: true };
 }
 
-export async function respondToMeeting(requestId: string, status: "Scheduled" | "Declined") {
+export async function respondToMeeting(requestId: string, status: "Accepted" | "Declined") {
   const session = await getSession();
   if (!session) return { error: "Unauthorized" };
 
@@ -77,13 +75,6 @@ export async function respondToMeeting(requestId: string, status: "Scheduled" | 
     where: { id: requestId },
     data: { status }
   });
-
-  if (status === "Scheduled" && mr.post.status === "Active") {
-    await db.post.update({
-      where: { id: mr.postId },
-      data: { status: "Meeting Scheduled" }
-    });
-  }
 
   await db.activityLog.create({
     data: {
@@ -104,5 +95,55 @@ export async function respondToMeeting(requestId: string, status: "Scheduled" | 
 
   revalidatePath(`/posts/${mr.postId}`);
   revalidatePath("/dashboard");
+  return { success: true };
+}
+
+export async function scheduleMeeting(formData: FormData) {
+  const session = await getSession();
+  if (!session) return { error: "Unauthorized" };
+
+  const requestId = formData.get("requestId") as string;
+  const timeSlots = formData.get("timeSlots") as string;
+
+  const mr = await db.meetingRequest.findUnique({
+    where: { id: requestId },
+    include: { post: true }
+  });
+
+  if (!mr || mr.requesterId !== session.userId || mr.status !== "Accepted") {
+    return { error: "Not authorized or request not accepted yet." };
+  }
+
+  await db.meetingRequest.update({
+    where: { id: requestId },
+    data: { timeSlots, status: "Scheduled" }
+  });
+
+  if (mr.post.status === "Active") {
+    await db.post.update({
+      where: { id: mr.postId },
+      data: { status: "Meeting Scheduled" }
+    });
+  }
+
+  await db.activityLog.create({
+    data: {
+      userId: session.userId,
+      actionType: "SCHEDULE_MEETING",
+      targetEntity: requestId,
+      resultStatus: "SUCCESS"
+    }
+  });
+
+  await db.notification.create({
+    data: {
+      userId: mr.post.ownerId,
+      type: "MEETING_SCHEDULED",
+      message: `The requester has scheduled a meeting time for "${mr.post.title}".`
+    }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath(`/posts/${mr.postId}`);
   return { success: true };
 }

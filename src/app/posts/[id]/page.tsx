@@ -144,19 +144,23 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
                       </div>
                       <span className={`badge`} style={{ 
                         background: req.status === 'Pending' ? 'rgba(234, 179, 8, 0.1)' : 
-                                   req.status === 'Scheduled' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                   req.status === 'Scheduled' ? 'rgba(16, 185, 129, 0.1)' : 
+                                   req.status === 'Accepted' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                         color: req.status === 'Pending' ? '#eab308' : 
-                               req.status === 'Scheduled' ? '#10b981' : '#ef4444'
+                               req.status === 'Scheduled' ? '#10b981' : 
+                               req.status === 'Accepted' ? '#3b82f6' : '#ef4444'
                       }}>
                         {req.status}
                       </span>
                     </div>
 
                     <div style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem' }}>
-                      <div>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>Proposed Time Slots</p>
-                        <p style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={14} /> {req.timeSlots}</p>
-                      </div>
+                      {req.timeSlots && (
+                        <div>
+                          <p style={{ color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>Scheduled Time</p>
+                          <p style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={14} /> {new Date(req.timeSlots).toLocaleString()}</p>
+                        </div>
+                      )}
                       {req.ndaAccepted && (
                         <div>
                           <p style={{ color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>NDA Status</p>

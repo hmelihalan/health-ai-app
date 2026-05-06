@@ -148,9 +148,18 @@ export async function changePassword(formData: FormData) {
   return { success: true };
 }
 
-export async function deleteAccount() {
+export async function deleteAccount(formData: FormData) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
+
+  const password = formData.get("password") as string;
+  if (!password) return { error: "Password is required" };
+
+  const user = await db.user.findUnique({ where: { id: session.userId } });
+  if (!user) return { error: "User not found" };
+
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) return { error: "Incorrect password" };
 
   // Delete all related records
   await db.notification.deleteMany({ where: { userId: session.userId } });

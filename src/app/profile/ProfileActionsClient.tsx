@@ -14,9 +14,24 @@ export default function ProfileActionsClient() {
   const [passwordError, setPasswordError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  const handleDelete = () => {
-    startTransition(() => {
-      deleteAccount();
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError("");
+    if (!deletePassword) {
+      setDeleteError("Password is required to delete your account.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("password", deletePassword);
+    
+    startTransition(async () => {
+      const res = await deleteAccount(formData);
+      if (res?.error) {
+        setDeleteError(res.error);
+      }
     });
   };
 
@@ -97,12 +112,23 @@ export default function ProfileActionsClient() {
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
               This action cannot be undone. This will permanently delete your account, posts, and meeting requests.
             </p>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button onClick={handleDelete} className="btn btn-danger" disabled={isPending}>
-                {isPending ? "Deleting..." : "Yes, delete my account"}
-              </button>
-              <button onClick={() => setShowWarning(false)} className="btn btn-secondary" disabled={isPending}>Cancel</button>
-            </div>
+            {deleteError && <p style={{ color: 'var(--danger-color)', marginBottom: '1rem', fontSize: '0.9rem' }}>{deleteError}</p>}
+            
+            <form onSubmit={handleDelete} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <input 
+                type="password" 
+                placeholder="Enter your password to confirm" 
+                className="form-input" 
+                value={deletePassword}
+                onChange={e => setDeletePassword(e.target.value)}
+              />
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button type="submit" className="btn btn-danger" disabled={isPending}>
+                  {isPending ? "Deleting..." : "Yes, delete my account"}
+                </button>
+                <button type="button" onClick={() => setShowWarning(false)} className="btn btn-secondary" disabled={isPending}>Cancel</button>
+              </div>
+            </form>
           </div>
         )}
       </div>

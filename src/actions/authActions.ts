@@ -178,3 +178,51 @@ export async function deleteAccount(formData: FormData) {
   await destroySession();
   redirect("/login");
 }
+
+export async function forgotPassword(formData: FormData) {
+  const email = formData.get("email") as string;
+  const user = await db.user.findUnique({ where: { email } });
+
+  if (!user) {
+    // For security, don't reveal if user exists or not
+    return { success: true };
+  }
+
+  const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+  await db.user.update({
+    where: { id: user.id },
+    data: { resetToken }
+  });
+
+  console.log(`\n\n=== MOCK EMAIL ===\nTo: ${email}\nSubject: Reset your Health AI Password\nToken: ${resetToken}\n==================\n\n`);
+
+  await db.activityLog.create({
+    data: { userId: user.id, actionType: "FORGOT_PASSWORD", resultStatus: "SUCCESS" }
+  });
+
+  return { success: true };
+}
+
+export async function resetPassword(formData: FormData) {
+  const email = formData.get("email") as string;
+  const token = formData.get("token") as string;
+  const newPassword = formData.get("password") as string;
+
+  const user = await db.user.findUnique({ where: { email } });
+
+  if (!user || user.resetToken !== token) {
+    return { error: "Invalid email or token" };
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await db.user.update({
+    where: { id: user.id },
+    data: { passwordHash, resetToken: null }
+  });
+
+  await db.activityLog.create({
+    data: { userId: user.id, actionType: "RESET_PASSWORD", resultStatus: "SUCCESS" }
+  });
+
+  return { success: true };
+}

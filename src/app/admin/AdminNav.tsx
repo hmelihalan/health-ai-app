@@ -11,6 +11,7 @@ export default function AdminNav() {
     { href: "/admin/posts", label: "Posts" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/logs", label: "Logs" },
+    { href: "/admin/feedback", label: "Feedback" },
   ];
 
   return (

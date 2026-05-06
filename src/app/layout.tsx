@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import FeedbackForm from "@/components/FeedbackForm";
 
 export const metadata: Metadata = {
   title: "HEALTH AI | Co-Creation Platform",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <main className="container" style={{ padding: '2rem 1.5rem' }}>
           {children}
         </main>
+        <FeedbackForm />
       </body>
     </html>
   );

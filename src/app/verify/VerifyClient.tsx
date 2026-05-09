@@ -16,6 +16,16 @@ export default function VerifyClient() {
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendMessage, setResendMessage] = useState("");
+  const [demoNotice, setDemoNotice] = useState("");
+
+  useEffect(() => {
+    const demoCode = searchParams.get("demoCode");
+    const demoError = searchParams.get("error");
+    if (demoCode) {
+      setToken(demoCode);
+      setDemoNotice(`DEMO MODE: Email sending failed (${demoError}). You can use the code ${demoCode} already filled in below.`);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -97,6 +107,16 @@ export default function VerifyClient() {
           <Clock size={16} />
           {isExpired ? 'Code expired — request a new one' : `Code expires in ${formatTime(timeLeft)}`}
         </div>
+
+        {demoNotice && (
+          <div style={{ 
+            marginBottom: '1.5rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', 
+            color: '#f59e0b', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.3)',
+            fontSize: '0.85rem', lineHeight: '1.4'
+          }}>
+            {demoNotice}
+          </div>
+        )}
 
         {error && <div style={{ color: 'var(--danger-color)', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</div>}
         {resendMessage && <div style={{ color: 'var(--success-color)', marginBottom: '1rem', fontSize: '0.9rem' }}>{resendMessage}</div>}

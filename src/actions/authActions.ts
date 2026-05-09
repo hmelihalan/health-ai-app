@@ -35,11 +35,8 @@ export async function registerUser(formData: FormData) {
     try {
       await sendVerificationEmail(email, verificationToken);
     } catch (e: any) {
-      // In Demo/Sandbox mode, we surface the token so the user isn't blocked
-      return { 
-        error: `Email sending failed (${e.message}). \n\nDEMO FALLBACK: Since you're on a Resend free tier, use this code to verify: ${verificationToken}`,
-        demoToken: verificationToken 
-      };
+      // In Demo/Sandbox mode, redirect with the code in the URL so they can still verify
+      redirect(`/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`);
     }
     redirect(`/verify?email=${encodeURIComponent(email)}`);
   }
@@ -54,11 +51,8 @@ export async function registerUser(formData: FormData) {
   try {
     await sendVerificationEmail(email, verificationToken);
   } catch (e: any) {
-    // Delete the user record if we can't send the email, BUT for demo purposes, let's let them proceed with a fallback
-    return { 
-      error: `Email sending failed (${e.message}). \n\nDEMO FALLBACK: Use this code to verify: ${verificationToken}`,
-      demoToken: verificationToken 
-    };
+    // Redirect with demoCode fallback
+    redirect(`/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`);
   }
 
   await db.activityLog.create({

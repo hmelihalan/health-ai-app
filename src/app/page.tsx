@@ -55,6 +55,39 @@ export default function Home() {
           <p style={{ color: 'var(--text-secondary)' }}>Filter by clinical domain, project stage, and city. Initiate meaningful first contact without relying on coincidence.</p>
         </div>
       </section>
+
+      {/* Demo Credentials */}
+      <section style={{ maxWidth: '700px', margin: '0 auto', width: '100%' }}>
+        <div className="card" style={{ 
+          background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08), rgba(192, 132, 252, 0.08))',
+          border: '1px solid rgba(96, 165, 250, 0.25)',
+          padding: '2rem'
+        }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', textAlign: 'center' }}>
+            🧪 Demo Accounts
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', marginBottom: '1.5rem' }}>
+            Use these pre-seeded accounts to explore the platform. Password for all: <code style={{ background: 'rgba(255,255,255,0.1)', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 600 }}>password123</code>
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+            <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.08)', borderRadius: '10px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#ef4444', fontWeight: 700, marginBottom: '0.4rem', letterSpacing: '0.05em' }}>Admin</p>
+              <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>admin@healthai.edu</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Full platform control</p>
+            </div>
+            <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.08)', borderRadius: '10px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#3b82f6', fontWeight: 700, marginBottom: '0.4rem', letterSpacing: '0.05em' }}>Doctor</p>
+              <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>dr.smith@med.edu</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Healthcare Professional</p>
+            </div>
+            <div style={{ padding: '1rem', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '10px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#10b981', fontWeight: 700, marginBottom: '0.4rem', letterSpacing: '0.05em' }}>Engineer</p>
+              <p style={{ fontSize: '0.9rem', fontWeight: 500 }}>dev.jones@tech.edu</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Tech University Munich</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

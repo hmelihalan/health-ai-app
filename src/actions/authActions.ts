@@ -32,7 +32,11 @@ export async function registerUser(formData: FormData) {
       where: { email },
       data: { passwordHash, firstName, lastName, role, city, institution, verificationToken }
     });
-    await sendVerificationEmail(email, verificationToken);
+    try {
+      await sendVerificationEmail(email, verificationToken);
+    } catch (e: any) {
+      return { error: `Failed to send email: ${e.message}. Note: Resend's free tier only sends to your own email address unless you verify your domain.` };
+    }
     redirect(`/verify?email=${encodeURIComponent(email)}`);
   }
 
@@ -43,7 +47,13 @@ export async function registerUser(formData: FormData) {
     data: { email, passwordHash, firstName, lastName, role, city, institution, verificationToken, emailVerified: false }
   });
 
-  await sendVerificationEmail(email, verificationToken);
+  try {
+    await sendVerificationEmail(email, verificationToken);
+  } catch (e: any) {
+    // Delete the user record if we can't send the email, so they can try again with a different email/fix
+    await db.user.delete({ where: { id: user.id } });
+    return { error: `Failed to send email: ${e.message}. Note: Resend's free tier only sends to your own email address unless you verify your domain.` };
+  }
 
   await db.activityLog.create({
     data: { userId: user.id, actionType: "REGISTER", resultStatus: "SUCCESS" }
@@ -63,7 +73,11 @@ export async function resendVerification(email: string) {
     data: { verificationToken }
   });
 
-  await sendVerificationEmail(email, verificationToken);
+  try {
+    await sendVerificationEmail(email, verificationToken);
+  } catch (e: any) {
+    return { error: `Failed to send email: ${e.message}` };
+  }
   return { success: true };
 }
 
@@ -225,7 +239,11 @@ export async function forgotPassword(formData: FormData): Promise<{ success: boo
     data: { resetToken }
   });
 
-  await sendPasswordResetEmail(email, resetToken);
+  try {
+    await sendPasswordResetEmail(email, resetToken);
+  } catch (e: any) {
+    return { error: `Failed to send email: ${e.message}` };
+  }
 
   await db.activityLog.create({
     data: { userId: user.id, actionType: "FORGOT_PASSWORD", resultStatus: "SUCCESS" }

@@ -9,7 +9,7 @@ const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Health AI <onboarding@resen
 export async function sendVerificationEmail(to: string, token: string) {
   if (resend) {
     try {
-      await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to,
         subject: "Verify your Health AI Account",
@@ -26,20 +26,27 @@ export async function sendVerificationEmail(to: string, token: string) {
           </div>
         `,
       });
-      return;
-    } catch (error) {
+
+      if (error) {
+        console.error("Resend API Error:", error);
+        throw new Error(error.message);
+      }
+      return { success: true };
+    } catch (error: any) {
       console.error("Failed to send email via Resend:", error);
+      throw error;
     }
   }
 
   // Fallback to console for local development
   console.log(`\n\n=== MOCK EMAIL ===\nTo: ${to}\nSubject: Verify your Health AI Account\nToken: ${token}\n==================\n\n`);
+  return { success: true, mock: true };
 }
 
 export async function sendPasswordResetEmail(to: string, token: string) {
   if (resend) {
     try {
-      await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to,
         subject: "Reset your Health AI Password",
@@ -56,12 +63,19 @@ export async function sendPasswordResetEmail(to: string, token: string) {
           </div>
         `,
       });
-      return;
-    } catch (error) {
+
+      if (error) {
+        console.error("Resend API Error:", error);
+        throw new Error(error.message);
+      }
+      return { success: true };
+    } catch (error: any) {
       console.error("Failed to send reset email via Resend:", error);
+      throw error;
     }
   }
 
   // Fallback to console for local development
   console.log(`\n\n=== MOCK EMAIL ===\nTo: ${to}\nSubject: Reset your Health AI Password\nToken: ${token}\n==================\n\n`);
+  return { success: true, mock: true };
 }

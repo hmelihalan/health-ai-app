@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { createSession, destroySession, getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
 
 export async function registerUser(formData: FormData) {
   const email = formData.get("email") as string;
@@ -31,7 +32,7 @@ export async function registerUser(formData: FormData) {
     data: { email, passwordHash, firstName, lastName, role, city, institution, verificationToken, emailVerified: false }
   });
 
-  console.log(`\n\n=== MOCK EMAIL ===\nTo: ${email}\nSubject: Verify your Health AI Account\nToken: ${verificationToken}\n==================\n\n`);
+  await sendVerificationEmail(email, verificationToken);
 
   await db.activityLog.create({
     data: { userId: user.id, actionType: "REGISTER", resultStatus: "SUCCESS" }
@@ -198,7 +199,7 @@ export async function forgotPassword(formData: FormData): Promise<{ success: boo
     data: { resetToken }
   });
 
-  console.log(`\n\n=== MOCK EMAIL ===\nTo: ${email}\nSubject: Reset your Health AI Password\nToken: ${resetToken}\n==================\n\n`);
+  await sendPasswordResetEmail(email, resetToken);
 
   await db.activityLog.create({
     data: { userId: user.id, actionType: "FORGOT_PASSWORD", resultStatus: "SUCCESS" }

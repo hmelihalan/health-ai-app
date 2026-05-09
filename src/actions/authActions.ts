@@ -242,7 +242,7 @@ export async function forgotPassword(formData: FormData): Promise<{ success: boo
   try {
     await sendPasswordResetEmail(email, resetToken);
   } catch (e: any) {
-    return { error: `Failed to send email: ${e.message}` };
+    return { success: false, error: `Failed to send email: ${e.message}` };
   }
 
   await db.activityLog.create({

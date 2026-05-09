@@ -50,3 +50,33 @@ export async function adminDeletePost(postId: string) {
   revalidatePath("/posts");
   return { success: true };
 }
+
+export async function adminDeleteUser(userId: string) {
+  const session = await getSession();
+  if (!session || session.role !== "Admin") {
+    return { error: "Unauthorized" };
+  }
+
+  // Prevent admin from deleting themselves
+  if (session.userId === userId) {
+    return { error: "You cannot delete your own admin account from here." };
+  }
+
+  // Delete all related records
+  await db.notification.deleteMany({ where: { userId } });
+  await db.activityLog.deleteMany({ where: { userId } });
+  
+  const userPosts = await db.post.findMany({ where: { ownerId: userId } });
+  const postIds = userPosts.map(p => p.id);
+  
+  await db.meetingRequest.deleteMany({ 
+    where: { OR: [{ requesterId: userId }, { postId: { in: postIds } }] } 
+  });
+  await db.post.deleteMany({ where: { ownerId: userId } });
+  
+  // Delete the user
+  await db.user.delete({ where: { id: userId } });
+
+  revalidatePath("/admin");
+  return { success: true };
+}

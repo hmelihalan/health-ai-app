@@ -86,9 +86,12 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                 </div>
               </div>
               
-              <div style={{ paddingLeft: '1rem', borderLeft: '1px solid var(--surface-border)' }}>
+              <div style={{ paddingLeft: '1rem', borderLeft: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {u.role !== "Admin" && (
-                   <AdminActionsClient action="suspend" targetId={u.id} />
+                  <>
+                    <AdminActionsClient action="suspend" targetId={u.id} />
+                    <AdminActionsClient action="delete_user" targetId={u.id} />
+                  </>
                 )}
               </div>
             </div>

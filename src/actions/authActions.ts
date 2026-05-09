@@ -32,13 +32,14 @@ export async function registerUser(formData: FormData) {
       where: { email },
       data: { passwordHash, firstName, lastName, role, city, institution, verificationToken }
     });
+    let redirectTarget = null;
     try {
       await sendVerificationEmail(email, verificationToken);
+      redirectTarget = `/verify?email=${encodeURIComponent(email)}`;
     } catch (e: any) {
-      // In Demo/Sandbox mode, redirect with the code in the URL so they can still verify
-      redirect(`/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`);
+      redirectTarget = `/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`;
     }
-    redirect(`/verify?email=${encodeURIComponent(email)}`);
+    if (redirectTarget) redirect(redirectTarget);
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -48,18 +49,20 @@ export async function registerUser(formData: FormData) {
     data: { email, passwordHash, firstName, lastName, role, city, institution, verificationToken, emailVerified: false }
   });
 
+  let redirectTarget = null;
   try {
     await sendVerificationEmail(email, verificationToken);
+    redirectTarget = `/verify?email=${encodeURIComponent(email)}`;
   } catch (e: any) {
-    // Redirect with demoCode fallback
-    redirect(`/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`);
+    redirectTarget = `/verify?email=${encodeURIComponent(email)}&demoCode=${verificationToken}&error=${encodeURIComponent(e.message)}`;
   }
 
-  await db.activityLog.create({
-    data: { userId: user.id, actionType: "REGISTER", resultStatus: "SUCCESS" }
-  });
-
-  redirect(`/verify?email=${encodeURIComponent(email)}`);
+  if (redirectTarget) {
+    await db.activityLog.create({
+      data: { userId: user.id, actionType: "REGISTER", resultStatus: "SUCCESS" }
+    });
+    redirect(redirectTarget);
+  }
 }
 
 export async function resendVerification(email: string) {
